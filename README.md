@@ -7,6 +7,24 @@
 
 # lazymc
 
+**This is modify version of lazymc**
+
+It add environment variable to support Pterodactyl Panel, make Egg!
+
+```sh
+LAZYMC_PUBLIC_ADDRESS
+LAZYMC_SERVER_ADDRESS
+LAZYMC_SERVER_COMMAND
+LAZYMC_SERVER_FREEZE_PROCESS
+
+LAZYMC_TIME_SLEEP_AFTER
+LAZYMC_TIME_MIN_ONLINE_TIME
+LAZYMC_RCON_ENABLED
+LAZYMC_ADVANCED_REWRITE_SERVER_PROPERTIES
+```
+
+---
+
 `lazymc` puts your Minecraft server to rest when idle, and wakes it up when
 players connect.
 

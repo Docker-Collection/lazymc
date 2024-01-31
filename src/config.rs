@@ -1,7 +1,9 @@
 use std::fs;
 use std::io;
+use std::env::var;
 use std::net::SocketAddr;
 use std::path::PathBuf;
+use std::process;
 
 use clap::ArgMatches;
 use serde::Deserialize;
@@ -148,7 +150,13 @@ pub struct Public {
 impl Default for Public {
     fn default() -> Self {
         Self {
-            address: "0.0.0.0:25565".parse().unwrap(),
+            address: match var("LAZYMC_PUBLIC_ADDRESS") {
+                Ok(val) => val.parse().unwrap_or_else(|_| {
+                    eprintln!("Error parsing LAZYMC_PUBLIC_ADDRESS, using default value");
+                    "0.0.0.0:25566".parse().unwrap()
+                }),
+                Err(_) => "0.0.0.0:25567".parse().unwrap(),
+            },
             version: proto::PROTO_DEFAULT_VERSION.to_string(),
             protocol: proto::PROTO_DEFAULT_PROTOCOL,
         }
@@ -165,6 +173,9 @@ pub struct Server {
     directory: Option<PathBuf>,
 
     /// Start command.
+    #[serde(
+        default = "server_command_default"
+    )]
     pub command: String,
 
     /// Server address.
@@ -176,7 +187,7 @@ pub struct Server {
 
     /// Freeze the server process instead of restarting it when no players online, making it start up faster.
     /// Only works on Unix (Linux or MacOS)
-    #[serde(default = "bool_true")]
+    #[serde(default = "server_freeze_process_default")]
     pub freeze_process: bool,
 
     /// Immediately wake server when starting lazymc.
@@ -248,8 +259,14 @@ pub struct Time {
 impl Default for Time {
     fn default() -> Self {
         Self {
-            sleep_after: 60,
-            min_online_time: 60,
+            sleep_after: match var("LAZYMC_TIME_SLEEP_AFTER") {
+                Ok(val) => val.parse().unwrap_or(60),
+                Err(_) => 60,
+            },
+            min_online_time: match var("LAZYMC_TIME_MIN_ONLINE_TIME") {
+                Ok(val) => val.parse().unwrap_or(60),
+                Err(_) => 60,
+            },
         }
     }
 }
@@ -457,7 +474,10 @@ pub struct Rcon {
 impl Default for Rcon {
     fn default() -> Self {
         Self {
-            enabled: cfg!(windows),
+            enabled: match var("LAZYMC_RCON_ENABLED") {
+                Ok(val) => val.parse().unwrap_or(cfg!(windows)),
+                Err(_) => cfg!(windows),
+            },
             port: 25575,
             password: "".into(),
             randomize_password: true,
@@ -477,7 +497,10 @@ pub struct Advanced {
 impl Default for Advanced {
     fn default() -> Self {
         Self {
-            rewrite_server_properties: true,
+            rewrite_server_properties: match var("LAZYMC_ADVANCED_REWRITE_SERVER_PROPERTIES") {
+                Ok(val) => val.parse().unwrap_or(true),
+                Err(_) => true,
+            },
         }
     }
 }
@@ -495,7 +518,31 @@ fn option_pathbuf_dot() -> Option<PathBuf> {
 }
 
 fn server_address_default() -> SocketAddr {
-    "127.0.0.1:25566".parse().unwrap()
+    match var("LAZYMC_SERVER_ADDRESS") {
+        Ok(val) => val.parse().unwrap_or_else(|_| {
+            eprintln!("Error parsing LAZYMC_SERVER_ADDRESS, using default value");
+            "127.0.0.1:25566".parse().unwrap()
+        }),
+        Err(_) => "127.0.0.1:25566".parse().unwrap()
+    }
+}
+
+fn server_command_default() -> String {
+    match var("LAZYMC_SERVER_COMMAND") {
+        Ok(val) => val,
+        Err(_) => {
+            eprintln!("Error, not defind LAZYMC_SERVER_COMMAND, exit...");
+            process::exit(1);
+        }
+    }
+}
+
+fn server_freeze_process_default() -> bool {
+    match var("LAZYMC_SERVER_FREEZE_PROCESS") {
+        Ok(val) => val.parse().unwrap_or(false),
+        Err(_) => false
+        
+    }
 }
 
 fn u32_300() -> u32 {
