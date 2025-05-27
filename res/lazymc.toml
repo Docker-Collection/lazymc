@@ -18,8 +18,8 @@
 # Server version & protocol hint.
 # Sent to clients until actual server version is known.
 # See: https://git.io/J1Fvx
-#version = "1.19.3"
-#protocol = 761
+#version = "1.20.3"
+#protocol = 765
 
 [server]
 # Server directory, defaults to current directory.
@@ -160,4 +160,4 @@ directory = "."
 [config]
 # lazymc version this configuration is for.
 # Don't change unless you know what you're doing.
-version = "0.2.10"
+version = "0.2.11"
