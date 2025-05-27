@@ -22,11 +22,11 @@ pub fn invoke(matches: &ArgMatches) {
     }
 
     // Try to load config
-    let _config = match Config::load(path) {
+    let _config = match Config::load_from_file(path) {
         Ok(config) => config,
         Err(err) => {
             quit_error(
-                anyhow!(err).context("Failed to load and parse config"),
+                anyhow::anyhow!(err).context("Failed to load and parse config"),
                 ErrorHintsBuilder::default().build().unwrap(),
             );
         }
